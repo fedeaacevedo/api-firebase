@@ -1,65 +1,107 @@
-import { createStore } from 'vuex'
-import router from '../router'
+import { createStore } from "vuex";
+import router from "../router";
 
 export default createStore({
   state: {
     tareas: [],
     tarea: {
-      id: '',
-      nombre: '',
+      id: "",
+      nombre: "",
       categorias: [],
-      estado: '',
-      numero: 0
-    }
+      estado: "",
+      numero: 0,
+    },
   },
   mutations: {
     cargar(state, payload) {
-      state.tareas = payload
+      state.tareas = payload;
     },
     set(state, payload) {
-      state.tareas.push(payload)
-      localStorage.setItem('tareas', JSON.stringify(state.tareas))
+      state.tareas.push(payload);
     },
     eliminar(state, payload) {
-      state.tareas = state.tareas.filter(item => item.id !== payload)
-      localStorage.setItem('tareas', JSON.stringify(state.tareas))
+      state.tareas = state.tareas.filter((item) => item.id !== payload);
     },
     tarea(state, payload) {
-      if (!state.tareas.find(item => item.id === payload)) {
-        router.push('/')
-        return
+      if (!state.tareas.find((item) => item.id === payload)) {
+        router.push("/");
+        return;
       }
-      state.tarea = state.tareas.find(item => item.id === payload)
+      state.tarea = state.tareas.find((item) => item.id === payload);
     },
     update(state, payload) {
-      state.tareas = state.tareas.map(item => item.id === payload.id ? payload : item)
-      router.push('/')
-      localStorage.setItem('tareas', JSON.stringify(state.tareas))
-    }
+      state.tareas = state.tareas.map((item) =>
+        item.id === payload.id ? payload : item
+      );
+      router.push("/");
+    },
   },
   actions: {
-    cargarLocalStorage({ commit }) {
-      if (localStorage.getItem('tareas')) {
-        const tareas = JSON.parse(localStorage.getItem('tareas'))
-        commit('cargar', tareas)
-        return
-      }
+    async cargarLocalStorage({ commit }) {
+      try {
+        const res = await fetch(
+          "https://udemy-api-a64fe-default-rtdb.firebaseio.com/tareas.json"
+        );
+        const dataDB = await res.json();
+        // console.log(dataDB);
+        const arrayTareas = [];
 
-      localStorage.setItem('tareas', JSON.stringify([]))
+        for (let id in dataDB) {
+          // console.log(id);
+          // console.log(dataDB[id]);
+          arrayTareas.push(dataDB[id]);
+        }
+
+        console.log(arrayTareas);
+
+        commit("cargar", arrayTareas);
+      } catch (error) {
+        console.log(error);
+      }
     },
-    setTareas({ commit }, tarea) {
-      commit('set', tarea)
+    async setTareas({ commit }, tarea) {
+      try {
+        const res = await fetch(
+          `https://udemy-api-a64fe-default-rtdb.firebaseio.com/tareas/${tarea.id}.json`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(tarea),
+          }
+        );
+
+        const dataDB = await res.json();
+        console.log(dataDB);
+      } catch (error) {
+        console.log(error);
+      }
+      commit("set", tarea);
     },
     deleteTareas({ commit }, id) {
-      commit('eliminar', id)
+      commit("eliminar", id);
     },
     setTarea({ commit }, id) {
-      commit('tarea', id)
+      commit("tarea", id);
     },
-    updateTarea({ commit }, tarea) {
-      commit('update', tarea)
-    }
+    async updateTarea({ commit }, tarea) {
+      try {
+        const res = await fetch(
+          `https://udemy-api-a64fe-default-rtdb.firebaseio.com/tareas/${tarea.id}.json`,
+          {
+            method: "PATCH",
+            body: JSON.stringify(tarea),
+          }
+        );
+
+        const dataDB = await res.json();
+        commit("update", dataDB);
+      } catch (error) {
+        console.log(error);
+      }
+      
+    },
   },
-  modules: {
-  }
-})
+  modules: {},
+});
