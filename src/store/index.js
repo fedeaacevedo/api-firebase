@@ -43,6 +43,10 @@ export default createStore({
     },
   },
   actions: {
+    cerrarSesion({commit}){
+      commit('setUser', null)
+      router.push('/ingreso')
+    },
     async ingresoUsuario({
       commit
     }, usuario) {
@@ -170,7 +174,13 @@ export default createStore({
         console.log(error);
       }
 
-    },
+    }
+  },
+  getters: {
+    usuarioAutenticado(state) {
+      return !!state.user
+    }
   },
   modules: {},
 });
+
