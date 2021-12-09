@@ -1,5 +1,5 @@
 <template>
-  <h1 class="my-5">Registro de Usuarios</h1>
+  <h1 class="my-5">Ingreso de Usuarios</h1>
   <form @submit.prevent="procesarFormulario()"> 
     <input 
           type="email" 
@@ -8,17 +8,11 @@
           v-model.trim="email"
     />
     <input 
-          type="password" 
-          placeholder="Password"  
-          class="form-control my-2" 
-          v-model.trim="pass1"
-          />
-    <input 
           type="password"  
           placeholder="Password"  
           class="form-control my-2" 
           v-model.trim="pass2"/>
-    <button type="submit" class="btn btn-primary" :disabled='bloquear'>Registrar</button>
+    <button type="submit" class="btn btn-primary" :disabled='bloquear'>Ingresar</button>
   </form>
 </template>
 
@@ -28,8 +22,7 @@ export default {
   data() {
     return {
       email: 'federico@correo',
-      pass1: '123123',
-      pass2:'123123'
+      pass1: '123123'
     }
   },
   computed:{
@@ -38,19 +31,19 @@ export default {
         return true
       }
       //Validar password. Tienen que ser iguales y tener caracteres minimos
-      if(this.pass1 === this.pass2 && this.pass1 !== '' && this.pass1.length > 5){
+      if(this.pass1 !== '' && this.pass1.length > 5){
         return false
       }
       return true
     }
   },
   methods:{
-    ...mapActions(['registrarUsuario']),
+    ...mapActions(['ingresoUsuario']),
     procesarFormulario(){
-      this.registrarUsuario({email:this.email, password:this.pass1})
+      this.ingresoUsuario({email:this.email, password:this.pass1})
       this.email = '',
-      this.pass1 = '',
-      this.pass2 = ''
+      this.pass1 = ''
+     
     }
   }
 };

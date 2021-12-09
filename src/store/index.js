@@ -11,8 +11,12 @@ export default createStore({
       estado: "",
       numero: 0,
     },
+    user:null
   },
   mutations: {
+    setUser(state, payload){
+      state.tareas = payload
+    },
     cargar(state, payload) {
       state.tareas = payload;
     },
@@ -37,6 +41,35 @@ export default createStore({
     },
   },
   actions: {
+    async ingresoUsuario({commit}, usuario){
+      try {
+        console.log(usuario);
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    async registrarUsuario({commit}, usuario){
+      try {
+        const res = await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyBTxCI347sDFNqAP0tRv9UYuB3Awu6Wds0',{
+          method:'POST',
+          body:JSON.stringify({
+            email: usuario.email,
+            password: usuario.password,
+            returnSecureToken: true
+          })
+        })
+
+        const userDB = await res.json()
+        console.log(userDB);
+        if(userDB.error){
+          console.log(userDB.error)
+          return
+        }
+        commit('setUser', userDB)
+      } catch (error) {
+        console.log(error);
+      }
+    },
     async cargarLocalStorage({ commit }) {
       try {
         const res = await fetch(
