@@ -1,4 +1,6 @@
-import { createStore } from "vuex";
+import {
+  createStore
+} from "vuex";
 import router from "../router";
 
 export default createStore({
@@ -11,10 +13,10 @@ export default createStore({
       estado: "",
       numero: 0,
     },
-    user:null
+    user: null
   },
   mutations: {
-    setUser(state, payload){
+    setUser(state, payload) {
       state.user = payload
     },
     cargar(state, payload) {
@@ -41,55 +43,59 @@ export default createStore({
     },
   },
   actions: {
-    async ingresoUsuario({commit}, usuario){
-        try {
-          const res = await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyBTxCI347sDFNqAP0tRv9UYuB3Awu6Wds0',{
-            method:'POST',
-            body:JSON.stringify({
-              email: usuario.email,
-              password: usuario.password,
-              returnSecureToken: true
-            })
+    async ingresoUsuario({
+      commit
+    }, usuario) {
+      try {
+        const res = await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyBTxCI347sDFNqAP0tRv9UYuB3Awu6Wds0', {
+          method: 'POST',
+          body: JSON.stringify({
+            email: usuario.email,
+            password: usuario.password,
+            returnSecureToken: true
           })
-          const userDB = await res.json()
-            console.log('userDB', userDB)
-            if(userDB.error){
-              return console.log(userDB.error);
-            }
-            commit('setUser', userDB)
-            router.push('/')
-        } catch (error) {
-          console.log(error);
+        })
+        const userDB = await res.json()
+        console.log('userDB', userDB)
+        if (userDB.error) {
+          return console.log(userDB.error);
         }
+        commit('setUser', userDB)
+        router.push('/')
+      } catch (error) {
+        console.log(error);
+      }
     },
-   
-    async registrarUsuario({commit}, usuario){
-        try {
-          const res = await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyBTxCI347sDFNqAP0tRv9UYuB3Awu6Wds0',{
-            method: 'POST',
-            body: JSON.stringify({
-              email: usuario.email, 
-              password: usuario.password,
-              returnSecureToken: true
-            })
+
+    async registrarUsuario({
+      commit
+    }, usuario) {
+      try {
+        const res = await fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyBTxCI347sDFNqAP0tRv9UYuB3Awu6Wds0', {
+          method: 'POST',
+          body: JSON.stringify({
+            email: usuario.email,
+            password: usuario.password,
+            returnSecureToken: true
           })
-          const userDB = await res.json()
-          console.log(userDB);
-          if(userDB.error){
-            console.log(userDB.error)
-            return
-          }
-          commit('setUser', userDB)
-          router.push('/')
-        } catch (error) {
-          console.log(error);
+        })
+        const userDB = await res.json()
+        console.log(userDB);
+        if (userDB.error) {
+          console.log(userDB.error)
+          return
         }
+        commit('setUser', userDB)
+        router.push('/')
+      } catch (error) {
+        console.log(error);
+      }
 
     },
-    async cargarLocalStorage({ commit }) {
+    async cargarLocalStorage({ commit, state }){
       try {
         const res = await fetch(
-          "https://udemy-api-a64fe-default-rtdb.firebaseio.com/tareas.json"
+          `https://udemy-api-a64fe-default-rtdb.firebaseio.com/tareas/${state.user.localId}.json?auth=${state.user.idToken},`
         );
         const dataDB = await res.json();
         // console.log(dataDB);
@@ -108,11 +114,12 @@ export default createStore({
         console.log(error);
       }
     },
-    async setTareas({ commit }, tarea) {
+    async setTareas({
+      commit, state
+    }, tarea) {
       try {
         const res = await fetch(
-          `https://udemy-api-a64fe-default-rtdb.firebaseio.com/tareas/${tarea.id}.json`,
-          {
+          `https://udemy-api-a64fe-default-rtdb.firebaseio.com/tareas/${state.user.localId}/${tarea.id}.json?auth=${state.user.idToken}`, {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
@@ -128,25 +135,30 @@ export default createStore({
       }
       commit("set", tarea);
     },
-    async deleteTareas({ commit }, id) {
+    async deleteTareas({
+      commit, state
+    }, id) {
       try {
-        const res = await fetch(`https://udemy-api-a64fe-default-rtdb.firebaseio.com/tareas/${id}.json`,{
-          method:'DELETE'
+        const res = await fetch(`https://udemy-api-a64fe-default-rtdb.firebaseio.com/tareas/${state.user.localId}/${id}.json?auth=${state.user.idToken}`, {
+          method: 'DELETE'
         })
         commit("eliminar", id);
       } catch (error) {
         console.log(error);
       }
-      
+
     },
-    setTarea({ commit }, id) {
+    setTarea({
+      commit
+    }, id) {
       commit("tarea", id);
     },
-    async updateTarea({ commit }, tarea) {
+    async updateTarea({
+      commit, state
+    }, tarea) {
       try {
         const res = await fetch(
-          `https://udemy-api-a64fe-default-rtdb.firebaseio.com/tareas/${tarea.id}.json`,
-          {
+          `https://udemy-api-a64fe-default-rtdb.firebaseio.com/tareas/${state.user.localId}/${tarea.id}.json?auth=${state.user.idToken}`, {
             method: "PATCH",
             body: JSON.stringify(tarea),
           }
@@ -157,7 +169,7 @@ export default createStore({
       } catch (error) {
         console.log(error);
       }
-      
+
     },
   },
   modules: {},
