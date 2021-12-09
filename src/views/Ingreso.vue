@@ -1,6 +1,6 @@
 <template>
   <h1 class="my-5">Ingreso de Usuarios</h1>
-  <form @submit.prevent="procesarFormulario()"> 
+  <form @submit.prevent="procesarFormulario"> 
     <input 
           type="email" 
           placeholder="Email" 
@@ -8,10 +8,12 @@
           v-model.trim="email"
     />
     <input 
-          type="password"  
+          type="password" 
           placeholder="Password"  
           class="form-control my-2" 
-          v-model.trim="pass2"/>
+          v-model.trim="pass1"
+          />
+    
     <button type="submit" class="btn btn-primary" :disabled='bloquear'>Ingresar</button>
   </form>
 </template>
@@ -21,8 +23,8 @@ import { mapActions } from 'vuex';
 export default {
   data() {
     return {
-      email: 'federico@correo',
-      pass1: '123123'
+      email: '' ,
+      pass1: '', 
     }
   },
   computed:{
@@ -31,7 +33,7 @@ export default {
         return true
       }
       //Validar password. Tienen que ser iguales y tener caracteres minimos
-      if(this.pass1 !== '' && this.pass1.length > 5){
+      if(this.pass1.length > 5){
         return false
       }
       return true
@@ -41,9 +43,8 @@ export default {
     ...mapActions(['ingresoUsuario']),
     procesarFormulario(){
       this.ingresoUsuario({email:this.email, password:this.pass1})
-      this.email = '',
-      this.pass1 = ''
-     
+      this.email = '';
+      this.pass1 = '';
     }
   }
 };
